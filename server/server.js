@@ -35,6 +35,10 @@ io.on('connection', (socket) => {
     console.log('Client disconnected', socket.id);
   });
 });
+//routes
+app.get('/',(req,res)=>{
+  res.send('API is running');
+});
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
