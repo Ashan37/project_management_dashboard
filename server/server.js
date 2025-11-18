@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
 import connectDB from './config/db.js';
+import authRoutes from "./routes/auth.routes.js";
 
 
 
@@ -39,6 +40,8 @@ io.on('connection', (socket) => {
 app.get('/',(req,res)=>{
   res.send('API is running');
 });
+
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
