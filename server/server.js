@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
 import connectDB from './config/db.js';
-import authRoutes from "./routes/auth.routes.js";
+import userRoute from "./src/routes/userRoute.js";
 
 
 
@@ -41,7 +41,7 @@ app.get('/',(req,res)=>{
   res.send('API is running');
 });
 
-app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoute);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
