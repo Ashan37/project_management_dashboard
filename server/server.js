@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import connectDB from './config/db.js';
 import userRoute from "./src/routes/userRoute.js";
 import projectRoute from './src/routes/projectRoute.js';
+import taskRoute from './src/routes/taskRoute.js';
 
 
 
@@ -44,6 +45,7 @@ app.get('/',(req,res)=>{
 
 app.use("/api/user", userRoute);
 app.use("/api/projects",projectRoute);
+app.use("/api/tasks",taskRoute);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
