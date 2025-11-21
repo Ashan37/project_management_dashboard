@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 import userRoute from "./src/routes/userRoute.js";
 import projectRoute from './src/routes/projectRoute.js';
 import taskRoute from './src/routes/taskRoute.js';
+import clientRoute from './src/routes/clientRoute.js';
 
 
 
@@ -46,6 +47,7 @@ app.get('/',(req,res)=>{
 app.use("/api/user", userRoute);
 app.use("/api/projects",projectRoute);
 app.use("/api/tasks",taskRoute);
+app.use("/api/clients",clientRoute);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
