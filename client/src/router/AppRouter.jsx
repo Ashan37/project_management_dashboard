@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
-// import Dashboard from "../pages/Dashboard";
-// import ClientPortal from "../pages/ClientPortal";
+import Dashboard from "../pages/Dashboard";
+import ClientPortal from "../pages/ClientPortal";
 import ProtectedRoute from "./ProtectedRoute";
+import TaskBoard from "../pages/TaskBoard";
 
 export default function AppRouter() {
   return (
@@ -10,10 +11,12 @@ export default function AppRouter() {
       <Routes>
         <Route path="/" element={<Login />} />
 
-        {/* <Route
+        <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["admin", "projectManager", "employee"]}>
+            <ProtectedRoute
+              allowedRoles={["admin", "projectManager", "employee"]}
+            >
               <Dashboard />
             </ProtectedRoute>
           }
@@ -26,8 +29,18 @@ export default function AppRouter() {
               <ClientPortal />
             </ProtectedRoute>
           }
-        />*/}
-      </Routes> 
+        />
+      </Routes>
+      <Route
+        path="/projects/:projectId/kanban"
+        element={
+          <ProtectedRoute
+            allowedRoles={["admin", "projectManager", "employee"]}
+          >
+            <TaskBoard />
+          </ProtectedRoute>
+        }
+      />
     </BrowserRouter>
   );
 }
