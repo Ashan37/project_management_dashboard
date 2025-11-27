@@ -1,100 +1,178 @@
 import Task from "../models/taskModel.js";
+import Project from "../models/projectModel.js";
 
-// Create a new task
+const emit = (req, event, payload) => {
+  try {
+    const io = req.app.get("io");
+    if (io) io.emit(event, payload);
+  } catch (err) {
+    console.error("Socket emit error:", err.message);
+  }
+};
+
 export const createTask = async (req, res) => {
   try {
-    const task = new Task.create(req.body);
+    // Check if user is a manager trying to create a task
+    if (req.user.role === "manager") {
+      // Verify the manager is assigned to this project
+      const project = await Project.findById(req.body.project);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      
+      const isTeamMember = project.teamMembers.some(
+        member => member.toString() === req.user._id.toString()
+      );
+      
+      if (!isTeamMember) {
+        return res.status(403).json({ 
+          message: "You can only create tasks for projects you are assigned to" 
+        });
+      }
+    }
+
+    const task = await Task.create(req.body);
+    emit(req, "refreshKanban", { projectId: task.project, taskId: task._id, action: "created" });
+    emit(req, "refreshTasks", { projectId: task.project });
     res.status(201).json({ message: "Task created successfully", task });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error("Error creating task:", error);
+    res.status(500).json({ message: error.message, details: error });
   }
 };
 
-// Get all tasks
 export const getTasksByProject = async (req, res) => {
   try {
-    const tasks = await Task.find({ project: req.params.projectId }).populate(
-      "assignedTo",
-      "name email role"
-    );
-
-    res.status(200).json({ tasks });
+    const tasks = await Task.find({ project: req.params.projectId })
+      .populate("assignedTo", "name email role")
+      .populate("comments.user", "name email");
+    res.json(tasks);
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
-//update task
 export const updateTask = async (req, res) => {
   try {
-    const updated = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ message: "Task not found" });
-    res.status(200).json({ message: "Task updated successfully", updated });
+
+    emit(req, "refreshTasks", { projectId: updated.project, taskId: updated._id, action: "updated" });
+    emit(req, "refreshKanban", { projectId: updated.project, taskId: updated._id, action: "updated" });
+
+    res.json({ message: "Task updated successfully", updated });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
-//update task status
+
 export const updateTaskStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    const task = await Task.findById(req.params.id);
+    
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    // Permission check
+    const isAdmin = req.user.role === "admin";
+    const isManager = req.user.role === "manager";
+    const isAssignedEmployee = req.user.role === "employee" && 
+                                task.assignedTo?.toString() === req.user._id.toString();
+
+    // If employee, check if they have permission to change status
+    if (isAssignedEmployee && !task.allowEmployeeStatusChange) {
+      return res.status(403).json({ 
+        message: "You don't have permission to change this task's status. Contact your admin or manager." 
+      });
+    }
+
+    // Only allow admins, managers, or assigned employees with permission
+    if (!isAdmin && !isManager && !isAssignedEmployee) {
+      return res.status(403).json({ 
+        message: "You don't have permission to change this task's status" 
+      });
+    }
+
     const updated = await Task.findByIdAndUpdate(
-      req.params.id,
-      { status },
+      req.params.id, 
+      { status }, 
       { new: true }
-    );
-    if (!updated) return res.status(404).json({ message: "Task not found" });
-    res
-      .status(200)
-      .json({ message: "Task status updated successfully", updated });
+    ).populate("assignedTo", "name email role");
+
+    emit(req, "refreshKanban", { projectId: updated.project, taskId: updated._id, action: "statusChanged", status });
+    emit(req, "refreshTasks", { projectId: updated.project });
+
+    res.json({ message: "Task status updated", updated });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
-//add subtask
 export const addSubtask = async (req, res) => {
   try {
-    const updated = await Task.findByIdAndUpdate(
-      req.params.id,
-      { $push: { subtasks: req.body } },
-      { new: true }
-    );
-    res.json({ message: "Subtask added successfully", updated });
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
-//add comments
-export const addComment = async (req, res) => {
-  try {
-    const newComment = {
-      user: req.user._id,
-      message: req.body.message,
-    };
-
-    const updated = await Task.findByIdAndUpdate(
-      req.params.id,
-      { $push: { comments: newComment } },
-      { new: true }
-    );
-
+    const updated = await Task.findByIdAndUpdate(req.params.id, { $push: { subtasks: req.body } }, { new: true });
+    emit(req, "refreshTasks", { projectId: updated.project, taskId: updated._id, action: "subtaskAdded" });
     res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//delete task
+export const toggleSubtask = async (req, res) => {
+  try {
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, "subtasks._id": req.params.subtaskId },
+      { $bit: { "subtasks.$.isCompleted": { xor: 1 } } },
+      { new: true }
+    );
+
+    emit(req, "refreshTasks", { projectId: task.project, taskId: task._id, action: "subtaskToggled" });
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const addComment = async (req, res) => {
+  try {
+    const newComment = { user: req.user._id, message: req.body.message };
+    const updated = await Task.findByIdAndUpdate(req.params.id, { $push: { comments: newComment } }, { new: true })
+      .populate("comments.user", "name email");
+    emit(req, "refreshTasks", { projectId: updated.project, taskId: updated._id, action: "commentAdded" });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const deleteTask = async (req, res) => {
   try {
     const deleted = await Task.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Task not found" });
-    res.status(200).json({ message: "Task deleted successfully" });
+
+    emit(req, "refreshTasks", { projectId: deleted.project, taskId: deleted._id, action: "deleted" });
+    emit(req, "refreshKanban", { projectId: deleted.project, taskId: deleted._id, action: "deleted" });
+
+    res.json({ message: "Task deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getMyTasks = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const tasks = await Task.find({ assignedTo: req.user._id })
+      .populate("project", "name status")
+      .populate("assignedTo", "name email role")
+      .sort({ createdAt: -1 });
+    
+    res.json(tasks);
+  } catch (error) {
+    console.error("Error in getMyTasks:", error);
+    res.status(500).json({ message: error.message });
   }
 };

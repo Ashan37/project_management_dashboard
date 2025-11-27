@@ -1,29 +1,36 @@
 // src/api/taskApi.js
-import axios from "./axiosConfig"; // uses your axiosConfig that attaches token
+import instance from "./axiosConfig"; // uses your axiosConfig that attaches token
 
 export const getTasksByProject = (projectId) =>
-  axios.get(`/tasks/project/${projectId}`);
+  instance.get(`/tasks/project/${projectId}`);
 
 export const createTask = (data) =>
-  axios.post("/tasks", data);
+  instance.post("/tasks", data);
 
 export const updateTask = (id, data) =>
-  axios.put(`/tasks/${id}`, data);
+  instance.put(`/tasks/${id}`, data);
 
 export const updateTaskStatus = (id, status) =>
-  axios.put(`/tasks/${id}/status`, { status });
+  instance.put(`/tasks/${id}/status`, { status });
 
 export const addSubtask = (id, subtask) =>
-  axios.post(`/tasks/${id}/subtask`, subtask);
+  instance.post(`/tasks/${id}/subtask`, subtask);
 
 export const toggleSubtask = (id, subtaskId) =>
-  axios.put(`/tasks/${id}/subtask/${subtaskId}/toggle`);
+  instance.put(`/tasks/${id}/subtask/${subtaskId}/toggle`);
 
 export const addComment = (id, message) =>
-  axios.post(`/tasks/${id}/comment`, { message });
+  instance.post(`/tasks/${id}/comment`, { message });
 
-// example attachment upload: assumes backend /upload endpoint or use existing endpoint
+export const deleteTask = (id) =>
+  instance.delete(`/tasks/${id}`);
+
+// Get all tasks for the current user
+export const getMyTasks = () =>
+  instance.get("/tasks/my-tasks");
+
+// File upload
 export const uploadAttachment = (formData) =>
-  axios.post(`/upload`, formData, {
+  instance.post(`/uploads`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });

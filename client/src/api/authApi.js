@@ -1,4 +1,4 @@
-import axios from 'axios';
+import instance from './axiosConfig';
 
-export const loginUser=async (data)=>axios.post('/auth/login',data);
-export const registerUser=async (data)=>axios.post('/auth/register',data);
+export const loginUser = async (data) => instance.post('/users/login', data);
+export const registerUser = async (data) => instance.post('/users/register', data);

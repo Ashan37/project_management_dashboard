@@ -4,19 +4,18 @@ const projectSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
-    client: { type: mongoose.Schema.Types.ObjectId },
+    client: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     teamMembers: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+      { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     ],
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
+    startDate: { type: Date },
+    endDate: { type: Date },
     status: {
       type: String,
-      enum: ["Not Started", "In Progress", "Completed", "On Hold"],
-      default: "Not Started",
+      enum: ["planning", "in-progress", "in-review", "completed", "on-hold"],
+      default: "planning",
     },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
+    progress: { type: Number, default: 0, min: 0, max: 100 },
   },
   { timestamps: true }
 );

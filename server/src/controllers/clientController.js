@@ -1,6 +1,20 @@
 import Project from "../models/projectModel.js";
-import ClientRequest from "../models/clientRequest.js";
+import ClientRequest from "../models/clientRequestModel.js";
+import User from "../models/userModel.js";
 
+// Get all clients (for admins/managers)
+export const getAllClients = async (req, res) => {
+  try {
+    const clients = await User.find({ role: "client" })
+      .select("-password")
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(clients);
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export const getClientRequests = async (req, res) => {
   try {

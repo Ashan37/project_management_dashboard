@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { loginUser } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
 import { jwtDecode } from "jwt-decode";
@@ -6,10 +6,21 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const { login, token, role } = useAuthStore();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (token && role) {
+      if (role === "client") {
+        navigate("/client/portal", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [token, role, navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,18 +28,30 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       const res = await loginUser(form);
-      const { token } = res.data;
-      const decoded = jwtDecode(token);
+      const { token, user } = res.data;
+      
+      if (!token) {
+        throw new Error("No token received from server");
+      }
 
+      const decoded = jwtDecode(token);
+      
+      // Store authentication data
+      login(user, token);
+      localStorage.setItem('token', token);
+
+      // Navigate based on role
       if (decoded.role === "client") {
-        navigate("client/portal");
+        navigate("/client/portal");
       } else {
         navigate("/dashboard");
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.response?.data?.message || "Invalid email or password");
     }
   };
@@ -58,7 +81,7 @@ export default function Login() {
       ></input>
       <button
         type="submit"
-        className="w-full py-3 text-white bg-blue-600 rounded hover:bg-blue-700"
+        className="w-full py-3 text-white bg-[#82BAC4] rounded hover:bg-[#6DA8B3]"
       >
         Login
       </button>

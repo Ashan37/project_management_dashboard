@@ -24,12 +24,21 @@ const taskSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["To Do", "In Progress", "Done"],
+      enum: ["To Do", "In Progress", "In Review", "Completed"],
       default: "To Do",
     },
 
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     dueDate: { type: Date },
+
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high", "urgent"],
+      default: "medium",
+    },
+
+    // Permission control: whether assigned employee can change status
+    allowEmployeeStatusChange: { type: Boolean, default: true },
 
     subtasks: [subtaskSchema],
     comments: [commentSchema],
