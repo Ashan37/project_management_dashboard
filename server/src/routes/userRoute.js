@@ -9,7 +9,6 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 
-// Get all users (admin/manager only)
 router.get("/", protect, async (req, res) => {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 });
@@ -19,7 +18,6 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-// Create user by admin only
 router.post("/create", protect, authorizeRoles("admin"), createUser);
 
 router.get("/profile", protect, (req, res) => {

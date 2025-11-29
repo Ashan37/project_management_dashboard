@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import instance from '../api/axiosConfig';
-import CreateUserModal from '../components/users/CreateUserModal';
+import { useEffect, useState } from "react";
+import DashboardLayout from "../components/layout/DashboardLayout";
+import instance from "../api/axiosConfig";
+import CreateUserModal from "../components/users/CreateUserModal";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -15,10 +15,10 @@ export default function Users() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const res = await instance.get('/users');
+      const res = await instance.get("/users");
       setUsers(res.data || []);
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error("Error loading users:", error);
       setUsers([]);
     } finally {
       setLoading(false);
@@ -27,29 +27,29 @@ export default function Users() {
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'admin':
-        return 'bg-red-100 text-red-800';
-      case 'manager':
-        return 'bg-blue-100 text-blue-800';
-      case 'employee':
-        return 'bg-green-100 text-green-800';
-      case 'client':
-        return 'bg-purple-100 text-purple-800';
+      case "admin":
+        return "bg-red-100 text-red-800";
+      case "manager":
+        return "bg-blue-100 text-blue-800";
+      case "employee":
+        return "bg-green-100 text-green-800";
+      case "client":
+        return "bg-purple-100 text-purple-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'admin':
-        return 'Admin';
-      case 'manager':
-        return 'Project Manager';
-      case 'employee':
-        return 'Employee';
-      case 'client':
-        return 'Client';
+      case "admin":
+        return "Admin";
+      case "manager":
+        return "Project Manager";
+      case "employee":
+        return "Employee";
+      case "client":
+        return "Client";
       default:
         return role;
     }
@@ -99,24 +99,35 @@ export default function Users() {
                 users.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{user.name}</div>
+                      <div className="font-medium text-gray-900">
+                        {user.name}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-gray-500">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
+                      <span
+                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(
+                          user.role
+                        )}`}
+                      >
                         {getRoleLabel(user.role)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                      {user.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString()
+                        : "N/A"}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-6 py-10 text-center text-gray-500">
+                  <td
+                    colSpan="4"
+                    className="px-6 py-10 text-center text-gray-500"
+                  >
                     No users found
                   </td>
                 </tr>

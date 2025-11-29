@@ -14,9 +14,7 @@ export default function useSocket(onEvent) {
 
     socketRef.current = socket;
 
-    socket.on("connect", () => {
-      // Socket connected
-    });
+    socket.on("connect", () => {});
 
     socket.on("refreshKanban", (data) => {
       if (onEvent) onEvent(data);

@@ -1,11 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
-import { createDiscussion, getDiscussionsByProject, deleteDiscussion, addReaction } from '../../api/discussionApi';
-import { useAuthStore } from '../../store/authStore';
-import MentionInput from './MentionInput';
+import { useState, useEffect, useRef } from "react";
+import {
+  createDiscussion,
+  getDiscussionsByProject,
+  deleteDiscussion,
+  addReaction,
+} from "../../api/discussionApi";
+import { useAuthStore } from "../../store/authStore";
+import MentionInput from "./MentionInput";
 
 export default function DiscussionThread({ projectId, taskId = null }) {
   const [discussions, setDiscussions] = useState([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -24,7 +29,7 @@ export default function DiscussionThread({ projectId, taskId = null }) {
       setDiscussions(res.data);
       scrollToBottom();
     } catch (error) {
-      console.error('Error fetching discussions:', error);
+      console.error("Error fetching discussions:", error);
     } finally {
       setLoading(false);
     }
@@ -32,7 +37,7 @@ export default function DiscussionThread({ projectId, taskId = null }) {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -42,37 +47,37 @@ export default function DiscussionThread({ projectId, taskId = null }) {
     try {
       setSending(true);
       let finalMessage = message.trim();
-      
-      // If replying to someone, prepend their mention
+
       if (replyingTo) {
         finalMessage = `@[${replyingTo.author.name}](${replyingTo.author._id}) ${finalMessage}`;
       }
-      
+
       await createDiscussion({
         project: projectId,
         task: taskId || undefined,
         message: finalMessage,
       });
-      setMessage('');
+      setMessage("");
       setReplyingTo(null);
       await fetchDiscussions();
     } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Failed to send message');
+      console.error("Error sending message:", error);
+      alert("Failed to send message");
     } finally {
       setSending(false);
     }
   };
 
   const handleDelete = async (discussionId) => {
-    if (!window.confirm('Are you sure you want to delete this message?')) return;
+    if (!window.confirm("Are you sure you want to delete this message?"))
+      return;
 
     try {
       await deleteDiscussion(discussionId);
       await fetchDiscussions();
     } catch (error) {
-      console.error('Error deleting discussion:', error);
-      alert('Failed to delete message');
+      console.error("Error deleting discussion:", error);
+      alert("Failed to delete message");
     }
   };
 
@@ -81,14 +86,17 @@ export default function DiscussionThread({ projectId, taskId = null }) {
       await addReaction(discussionId, emoji);
       await fetchDiscussions();
     } catch (error) {
-      console.error('Error adding reaction:', error);
+      console.error("Error adding reaction:", error);
     }
   };
 
   const renderMessage = (msg) => {
     // Replace mention markup with styled spans
     const mentionRegex = /@\[([^\]]+)\]\(([a-f\d]{24})\)/g;
-    return msg.replace(mentionRegex, '<span class="mention" style="color: #2563eb; font-weight: 600; background-color: #dbeafe; padding: 2px 6px; border-radius: 4px; margin: 0 2px;">@$1</span>');
+    return msg.replace(
+      mentionRegex,
+      '<span class="mention" style="color: #2563eb; font-weight: 600; background-color: #dbeafe; padding: 2px 6px; border-radius: 4px; margin: 0 2px;">@$1</span>'
+    );
   };
 
   if (loading) {
@@ -111,14 +119,16 @@ export default function DiscussionThread({ projectId, taskId = null }) {
       <div className="flex-1 p-4 space-y-4 overflow-y-auto max-h-96">
         {discussions.length === 0 ? (
           <div className="py-12 text-center">
-            <p className="text-gray-400">No messages yet. Start the conversation!</p>
+            <p className="text-gray-400">
+              No messages yet. Start the conversation!
+            </p>
           </div>
         ) : (
           discussions.map((discussion) => (
             <div
               key={discussion._id}
               className={`flex gap-3 ${
-                discussion.author._id === user?._id ? 'flex-row-reverse' : ''
+                discussion.author._id === user?._id ? "flex-row-reverse" : ""
               }`}
             >
               {/* Avatar */}
@@ -129,15 +139,19 @@ export default function DiscussionThread({ projectId, taskId = null }) {
               </div>
 
               {/* Message Content */}
-              <div className={`flex-1 max-w-md ${discussion.author._id === user?._id ? 'text-right' : ''}`}>
+              <div
+                className={`flex-1 max-w-md ${
+                  discussion.author._id === user?._id ? "text-right" : ""
+                }`}
+              >
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-semibold text-gray-900">
                     {discussion.author.name}
                   </span>
                   <span className="text-xs text-gray-500">
                     {new Date(discussion.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </span>
                   {discussion.isEdited && (
@@ -148,31 +162,34 @@ export default function DiscussionThread({ projectId, taskId = null }) {
                 <div
                   className={`p-3 rounded-lg ${
                     discussion.author._id === user?._id
-                      ? 'bg-[#82BAC4] text-white'
-                      : 'bg-gray-100 text-gray-900'
+                      ? "bg-[#82BAC4] text-white"
+                      : "bg-gray-100 text-gray-900"
                   }`}
                 >
                   <div
-                    className="text-sm whitespace-pre-wrap break-words"
-                    dangerouslySetInnerHTML={{ __html: renderMessage(discussion.message) }}
+                    className="text-sm break-words whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{
+                      __html: renderMessage(discussion.message),
+                    }}
                   />
 
                   {/* Attachments */}
-                  {discussion.attachments && discussion.attachments.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {discussion.attachments.map((att, idx) => (
-                        <a
-                          key={idx}
-                          href={att.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block text-xs underline hover:no-underline"
-                        >
-                          📎 {att.filename}
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                  {discussion.attachments &&
+                    discussion.attachments.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {discussion.attachments.map((att, idx) => (
+                          <a
+                            key={idx}
+                            href={att.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-xs underline hover:no-underline"
+                          >
+                            📎 {att.filename}
+                          </a>
+                        ))}
+                      </div>
+                    )}
                 </div>
 
                 {/* Reactions */}
@@ -199,18 +216,18 @@ export default function DiscussionThread({ projectId, taskId = null }) {
                 <div className="flex gap-2 mt-1">
                   <button
                     onClick={() => setReplyingTo(discussion)}
-                    className="text-xs text-gray-500 hover:text-gray-700 font-medium"
+                    className="text-xs font-medium text-gray-500 hover:text-gray-700"
                   >
                     ↩️ Reply
                   </button>
                   <button
-                    onClick={() => handleReaction(discussion._id, '👍')}
+                    onClick={() => handleReaction(discussion._id, "👍")}
                     className="text-xs text-gray-500 hover:text-gray-700"
                   >
                     👍
                   </button>
                   <button
-                    onClick={() => handleReaction(discussion._id, '❤️')}
+                    onClick={() => handleReaction(discussion._id, "❤️")}
                     className="text-xs text-gray-500 hover:text-gray-700"
                   >
                     ❤️
@@ -234,13 +251,15 @@ export default function DiscussionThread({ projectId, taskId = null }) {
       {/* Input */}
       <div className="p-4 border-t bg-gray-50">
         {replyingTo && (
-          <div className="flex items-center justify-between p-2 mb-2 text-sm bg-blue-50 border border-blue-200 rounded">
+          <div className="flex items-center justify-between p-2 mb-2 text-sm border border-blue-200 rounded bg-blue-50">
             <span className="text-blue-800">
-              ↩️ Replying to <strong>{replyingTo.author.name}</strong>: "{replyingTo.message.substring(0, 50)}{replyingTo.message.length > 50 ? '...' : ''}"
+              ↩️ Replying to <strong>{replyingTo.author.name}</strong>: "
+              {replyingTo.message.substring(0, 50)}
+              {replyingTo.message.length > 50 ? "..." : ""}"
             </span>
             <button
               onClick={() => setReplyingTo(null)}
-              className="text-blue-600 hover:text-blue-800 font-bold"
+              className="font-bold text-blue-600 hover:text-blue-800"
             >
               ✕
             </button>
@@ -250,7 +269,9 @@ export default function DiscussionThread({ projectId, taskId = null }) {
           value={message}
           onChange={setMessage}
           onSubmit={handleSend}
-          placeholder={replyingTo ? "Type your reply..." : "Type @ to mention someone..."}
+          placeholder={
+            replyingTo ? "Type your reply..." : "Type @ to mention someone..."
+          }
           disabled={sending}
           projectId={projectId}
         />

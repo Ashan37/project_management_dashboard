@@ -29,7 +29,6 @@ const STATUSES = [
   { key: "Completed", title: "Completed" },
 ];
 
-// Draggable Task Wrapper Component
 function DraggableTaskCard({ task, refresh, role }) {
   const {
     attributes,
@@ -46,7 +45,6 @@ function DraggableTaskCard({ task, refresh, role }) {
     opacity: isSorting ? 0.5 : 1,
   };
 
-  // Check if employee has permission to change status (default true for backward compatibility)
   const allowEmployeeStatusChange = task.allowEmployeeStatusChange !== false;
 
   const canDrag =

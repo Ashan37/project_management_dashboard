@@ -21,14 +21,12 @@ export default function ClientWidgets() {
         const projects = projectsRes.data;
         const tasks = tasksRes.data;
 
-        // Calculate average project progress
         let avgProgress = 0;
         if (projects.length > 0) {
           const totalProgress = projects.reduce((sum, project) => sum + (project.progress || 0), 0);
           avgProgress = Math.round(totalProgress / projects.length);
         }
 
-        // Count completed tasks
         const completedTasks = tasks.filter(task => task.status === "Completed").length;
 
         setStats({
@@ -51,8 +49,8 @@ export default function ClientWidgets() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="p-6 bg-white shadow rounded-xl animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="w-1/2 h-4 mb-2 bg-gray-200 rounded"></div>
+            <div className="w-1/3 h-8 bg-gray-200 rounded"></div>
           </div>
         ))}
       </div>

@@ -1,7 +1,6 @@
 import Project from "../models/projectModel.js";
 import User from "../models/userModel.js";
 
-// Create a new project
 export const createProject = async (req, res) => {
   try {
     const {
@@ -14,7 +13,6 @@ export const createProject = async (req, res) => {
       status,
     } = req.body;
 
-    // Validate client if provided
     if (client) {
       const clientExists = await User.findById(client);
       if (!clientExists || clientExists.role !== "client") {
@@ -39,7 +37,6 @@ export const createProject = async (req, res) => {
   }
 };
 
-// Get all projects
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find()

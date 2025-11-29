@@ -13,10 +13,8 @@ import { authorizeRoles } from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 
-// Get all clients (for admins/managers to select when creating projects)
 router.get("/", protect, authorizeRoles("admin", "manager"), getAllClients);
 
-// Client-specific routes
 router.use(protect, authorizeRoles("client"));
 
 router.get("/projects", getClientRequests);

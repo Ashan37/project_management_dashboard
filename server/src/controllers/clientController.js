@@ -2,7 +2,6 @@ import Project from "../models/projectModel.js";
 import ClientRequest from "../models/clientRequestModel.js";
 import User from "../models/userModel.js";
 
-// Get all clients (for admins/managers)
 export const getAllClients = async (req, res) => {
   try {
     const clients = await User.find({ role: "client" })

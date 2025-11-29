@@ -21,7 +21,7 @@ export const useAuthStore=create(
             }),
         }),
         {
-            name: 'auth-storage', // unique name for localStorage key
+            name: 'auth-storage', 
         }
     )
 );

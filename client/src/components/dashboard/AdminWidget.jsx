@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getProjects } from '../../api/projectApi';
-import { getClients } from '../../api/clientApi';
-import instance from '../../api/axiosConfig';
+import { useState, useEffect } from "react";
+import { getProjects } from "../../api/projectApi";
+import { getClients } from "../../api/clientApi";
+import instance from "../../api/axiosConfig";
 
 export default function AdminWidget() {
   const [stats, setStats] = useState({
@@ -19,24 +19,20 @@ export default function AdminWidget() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      
-      // Fetch projects
+
       const projectsRes = await getProjects();
       const projects = projectsRes.data || [];
-      
-      // Fetch clients
+
       const clientsRes = await getClients();
       const clients = clientsRes.data || [];
-      
-      // Fetch all users
-      const usersRes = await instance.get('/users');
+
+      const usersRes = await instance.get("/users");
       const users = usersRes.data || [];
-      
-      // Calculate active projects
+
       const activeProjects = projects.filter(
-        p => p.status !== 'completed'
+        (p) => p.status !== "completed"
       ).length;
-      
+
       setStats({
         totalProjects: projects.length,
         totalUsers: users.length,
@@ -44,7 +40,7 @@ export default function AdminWidget() {
         activeProjects: activeProjects,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }
@@ -75,20 +71,40 @@ export default function AdminWidget() {
 
   return (
     <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4">
-      <Widget title="Total Projects" value={stats.totalProjects} color="blue" icon="📁" />
-      <Widget title="Active Projects" value={stats.activeProjects} color="green" icon="🚀" />
-      <Widget title="Team Members" value={stats.totalUsers} color="purple" icon="👥" />
-      <Widget title="Clients" value={stats.totalClients} color="orange" icon="👤" />
+      <Widget
+        title="Total Projects"
+        value={stats.totalProjects}
+        color="blue"
+        icon="📁"
+      />
+      <Widget
+        title="Active Projects"
+        value={stats.activeProjects}
+        color="green"
+        icon="🚀"
+      />
+      <Widget
+        title="Team Members"
+        value={stats.totalUsers}
+        color="purple"
+        icon="👥"
+      />
+      <Widget
+        title="Clients"
+        value={stats.totalClients}
+        color="orange"
+        icon="👤"
+      />
     </div>
   );
 }
 
 function Widget({ title, value, color, icon }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    purple: 'bg-purple-50 text-purple-600',
-    orange: 'bg-orange-50 text-orange-600',
+    blue: "bg-blue-50 text-blue-600",
+    green: "bg-green-50 text-green-600",
+    purple: "bg-purple-50 text-purple-600",
+    orange: "bg-orange-50 text-orange-600",
   };
 
   return (

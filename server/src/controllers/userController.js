@@ -57,23 +57,19 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Create user by admin
 export const createUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Validate required fields
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Create new user
     const user = await User.create({
       name,
       email,

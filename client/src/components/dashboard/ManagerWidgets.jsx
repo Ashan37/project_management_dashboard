@@ -21,7 +21,6 @@ export default function ManagerWidgets() {
         const projects = projectsRes.data;
         const tasks = tasksRes.data;
 
-        // Calculate upcoming deadlines (tasks due within 7 days)
         const now = new Date();
         const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         const upcomingDeadlines = tasks.filter(task => {
@@ -29,8 +28,7 @@ export default function ManagerWidgets() {
           const dueDate = new Date(task.dueDate);
           return dueDate >= now && dueDate <= sevenDaysLater;
         }).length;
-
-        // Tasks in review (status "In Progress")
+        
         const tasksInReview = tasks.filter(task => task.status === "In Progress").length;
 
         setStats({
@@ -53,8 +51,8 @@ export default function ManagerWidgets() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="p-6 bg-white shadow rounded-xl animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="w-1/2 h-4 mb-2 bg-gray-200 rounded"></div>
+            <div className="w-1/3 h-8 bg-gray-200 rounded"></div>
           </div>
         ))}
       </div>

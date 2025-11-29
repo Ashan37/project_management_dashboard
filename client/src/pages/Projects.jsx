@@ -17,7 +17,6 @@ export default function Projects() {
     try {
       setLoading(true);
       const res = await getProjects();
-      // Backend returns array directly, not nested in projects property
       setProjects(res.data || []);
     } catch (err) {
       console.error('Error loading projects:', err);

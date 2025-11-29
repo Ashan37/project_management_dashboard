@@ -52,7 +52,6 @@ export default function ProjectDetails() {
             <AssignTeam project={project} refresh={loadDetails} />
           )}
 
-          {/* Tasks Section */}
           <div className="p-6 mt-6 bg-white shadow rounded-xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold">Project Tasks</h2>
@@ -107,7 +106,6 @@ export default function ProjectDetails() {
             )}
           </div>
 
-          {/* Discussion Thread */}
           <div className="mt-6">
             <h2 className="mb-4 text-xl font-bold">Project Discussion</h2>
             <DiscussionThread projectId={id} />

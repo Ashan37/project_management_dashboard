@@ -31,7 +31,6 @@ export default function AssignTeam({ project, refresh }) {
   const fetchUsers = async () => {
     try {
       const res = await instance.get('/users');
-      // Filter out clients, only show employees, managers, and admins
       const filteredUsers = res.data.filter(user => 
         user.role !== 'client'
       );
@@ -60,7 +59,6 @@ export default function AssignTeam({ project, refresh }) {
 
   const handleSave = async () => {
     try {
-      // Filter out empty values
       const validTeam = team.filter(id => id && id.trim() !== '');
       await assignTeam(project._id, validTeam);
       alert("Team assigned successfully!");

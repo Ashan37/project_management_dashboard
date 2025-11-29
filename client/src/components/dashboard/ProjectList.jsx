@@ -15,8 +15,7 @@ export default function ProjectList() {
     try {
       setLoading(true);
       const res = await getProjects();
-      // Get only the first 5 recent projects for dashboard
-      setProjects((res.data || []).slice(0, 5));
+      setProjects(res.data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
       setProjects([]);
@@ -43,8 +42,8 @@ export default function ProjectList() {
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-              <div className="h-2 bg-gray-200 rounded w-full"></div>
+              <div className="w-1/3 h-4 mb-2 bg-gray-200 rounded"></div>
+              <div className="w-full h-2 bg-gray-200 rounded"></div>
             </div>
           ))}
         </div>
@@ -69,7 +68,7 @@ export default function ProjectList() {
           {projects.map((project) => (
             <div
               key={project._id}
-              className="flex items-center justify-between py-3 border-b hover:bg-gray-50 cursor-pointer rounded px-2"
+              className="flex items-center justify-between px-2 py-3 border-b rounded cursor-pointer hover:bg-gray-50"
               onClick={() => navigate(`/projects/${project._id}`)}
             >
               <div className="flex-1">
@@ -87,7 +86,7 @@ export default function ProjectList() {
               </div>
 
               <div className="w-40">
-                <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                <div className="flex items-center justify-between mb-1 text-xs text-gray-600">
                   <span>Progress</span>
                   <span>{project.progress || 0}%</span>
                 </div>

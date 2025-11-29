@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getMyTasks } from '../../api/taskApi';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getMyTasks } from "../../api/taskApi";
 
 export default function EmployeeWidgets() {
   const navigate = useNavigate();
@@ -17,21 +17,21 @@ export default function EmployeeWidgets() {
         const tasksRes = await getMyTasks();
         const tasks = tasksRes.data;
 
-        // Calculate due today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const dueToday = tasks.filter(task => {
+        const dueToday = tasks.filter((task) => {
           if (!task.dueDate) return false;
           const dueDate = new Date(task.dueDate);
           dueDate.setHours(0, 0, 0, 0);
           return dueDate.getTime() === today.getTime();
         }).length;
 
-        // Count completed tasks
-        const completed = tasks.filter(task => task.status === "Completed").length;
+        const completed = tasks.filter(
+          (task) => task.status === "Completed"
+        ).length;
 
         setStats({
           myTasks: tasks.length,
@@ -63,16 +63,28 @@ export default function EmployeeWidgets() {
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-      <Widget title="My Tasks" value={stats.myTasks} onClick={() => navigate('/tasks')} />
-      <Widget title="Due Today" value={stats.dueToday} onClick={() => navigate('/tasks')} />
-      <Widget title="Completed" value={stats.completed} onClick={() => navigate('/tasks')} />
+      <Widget
+        title="My Tasks"
+        value={stats.myTasks}
+        onClick={() => navigate("/tasks")}
+      />
+      <Widget
+        title="Due Today"
+        value={stats.dueToday}
+        onClick={() => navigate("/tasks")}
+      />
+      <Widget
+        title="Completed"
+        value={stats.completed}
+        onClick={() => navigate("/tasks")}
+      />
     </div>
   );
 }
 
 function Widget({ title, value, onClick }) {
   return (
-    <div 
+    <div
       className="p-6 transition-shadow bg-white shadow cursor-pointer rounded-xl hover:shadow-lg"
       onClick={onClick}
     >

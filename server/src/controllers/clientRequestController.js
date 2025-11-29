@@ -1,6 +1,5 @@
 import ClientRequest from "../models/clientRequestModel.js";
 
-// Create a new client request
 export const createClientRequest = async (req, res) => {
   try {
     const { projectId, type, title, description, priority } = req.body;
@@ -28,7 +27,6 @@ export const createClientRequest = async (req, res) => {
   }
 };
 
-// Get all client requests (for admin/manager)
 export const getAllClientRequests = async (req, res) => {
   try {
     const requests = await ClientRequest.find()
@@ -44,7 +42,6 @@ export const getAllClientRequests = async (req, res) => {
   }
 };
 
-// Get client requests for a specific client
 export const getMyClientRequests = async (req, res) => {
   try {
     const requests = await ClientRequest.find({ client: req.user._id })
@@ -59,7 +56,6 @@ export const getMyClientRequests = async (req, res) => {
   }
 };
 
-// Get client requests by project
 export const getClientRequestsByProject = async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -76,7 +72,6 @@ export const getClientRequestsByProject = async (req, res) => {
   }
 };
 
-// Update client request status (admin/manager only)
 export const updateClientRequestStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -112,7 +107,6 @@ export const updateClientRequestStatus = async (req, res) => {
   }
 };
 
-// Delete client request
 export const deleteClientRequest = async (req, res) => {
   try {
     const { id } = req.params;

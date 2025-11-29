@@ -2,20 +2,18 @@ import Discussion from "../models/discussionModel.js";
 import Project from "../models/projectModel.js";
 import Task from "../models/taskModel.js";
 
-// Helper function to extract mentions from message
 const extractMentions = (message) => {
   const mentionRegex = /@\[([^\]]+)\]\(([a-f\d]{24})\)/g;
   const mentions = [];
   let match;
   
   while ((match = mentionRegex.exec(message)) !== null) {
-    mentions.push(match[2]); // Extract user ID
+    mentions.push(match[2]); 
   }
   
-  return [...new Set(mentions)]; // Remove duplicates
+  return [...new Set(mentions)]; 
 };
 
-// Helper function to emit socket event
 const emit = (req, event, payload) => {
   try {
     const io = req.app.get("io");
@@ -25,13 +23,11 @@ const emit = (req, event, payload) => {
   }
 };
 
-// Create a discussion message
 export const createDiscussion = async (req, res) => {
   try {
     const { project, task, message, attachments } = req.body;
     const author = req.user._id;
 
-    // Validate project access
     if (project) {
       const projectDoc = await Project.findById(project);
       if (!projectDoc) {
@@ -39,7 +35,6 @@ export const createDiscussion = async (req, res) => {
       }
     }
 
-    // Validate task access if provided
     if (task) {
       const taskDoc = await Task.findById(task);
       if (!taskDoc) {
@@ -47,7 +42,6 @@ export const createDiscussion = async (req, res) => {
       }
     }
 
-    // Extract mentions from message
     const mentions = extractMentions(message);
 
     const discussion = await Discussion.create({
@@ -62,7 +56,6 @@ export const createDiscussion = async (req, res) => {
     await discussion.populate("author", "name email role");
     await discussion.populate("mentions", "name email");
 
-    // Emit discussion created event
     emit(req, "discussionCreated", {
       projectId: project,
       taskId: task,
@@ -79,7 +72,6 @@ export const createDiscussion = async (req, res) => {
   }
 };
 
-// Get discussions by project
 export const getDiscussionsByProject = async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -103,7 +95,6 @@ export const getDiscussionsByProject = async (req, res) => {
   }
 };
 
-// Get discussions by task
 export const getDiscussionsByTask = async (req, res) => {
   try {
     const { taskId } = req.params;
@@ -121,7 +112,6 @@ export const getDiscussionsByTask = async (req, res) => {
   }
 };
 
-// Update discussion message
 export const updateDiscussion = async (req, res) => {
   try {
     const { id } = req.params;
@@ -133,12 +123,10 @@ export const updateDiscussion = async (req, res) => {
       return res.status(404).json({ message: "Discussion not found" });
     }
 
-    // Check if user is the author
     if (discussion.author.toString() !== userId.toString()) {
       return res.status(403).json({ message: "Not authorized to edit this discussion" });
     }
 
-    // Extract new mentions
     const mentions = extractMentions(message);
 
     discussion.message = message;
@@ -150,7 +138,6 @@ export const updateDiscussion = async (req, res) => {
     await discussion.populate("author", "name email role");
     await discussion.populate("mentions", "name email");
 
-    // Emit update event
     emit(req, "discussionUpdated", {
       discussionId: id,
       discussion,
@@ -166,7 +153,6 @@ export const updateDiscussion = async (req, res) => {
   }
 };
 
-// Delete discussion
 export const deleteDiscussion = async (req, res) => {
   try {
     const { id } = req.params;
@@ -178,14 +164,12 @@ export const deleteDiscussion = async (req, res) => {
       return res.status(404).json({ message: "Discussion not found" });
     }
 
-    // Only author or admin can delete
     if (discussion.author.toString() !== userId.toString() && userRole !== "admin") {
       return res.status(403).json({ message: "Not authorized to delete this discussion" });
     }
 
     await Discussion.findByIdAndDelete(id);
 
-    // Emit delete event
     emit(req, "discussionDeleted", {
       discussionId: id,
       projectId: discussion.project,
@@ -199,7 +183,6 @@ export const deleteDiscussion = async (req, res) => {
   }
 };
 
-// Add reaction to discussion
 export const addReaction = async (req, res) => {
   try {
     const { id } = req.params;
@@ -211,25 +194,23 @@ export const addReaction = async (req, res) => {
       return res.status(404).json({ message: "Discussion not found" });
     }
 
-    // Check if user already reacted with this emoji
     const existingReaction = discussion.reactions.find(
       (r) => r.user.toString() === userId.toString() && r.emoji === emoji
     );
 
     if (existingReaction) {
-      // Remove reaction
+
       discussion.reactions = discussion.reactions.filter(
         (r) => !(r.user.toString() === userId.toString() && r.emoji === emoji)
       );
     } else {
-      // Add reaction
+     
       discussion.reactions.push({ user: userId, emoji });
     }
 
     await discussion.save();
     await discussion.populate("reactions.user", "name");
 
-    // Emit reaction event
     emit(req, "discussionReaction", {
       discussionId: id,
       reactions: discussion.reactions,

@@ -73,20 +73,17 @@ export const updateTaskStatus = async (req, res) => {
     
     if (!task) return res.status(404).json({ message: "Task not found" });
 
-    // Permission check
     const isAdmin = req.user.role === "admin";
     const isManager = req.user.role === "manager";
     const isAssignedEmployee = req.user.role === "employee" && 
                                 task.assignedTo?.toString() === req.user._id.toString();
 
-    // If employee, check if they have permission to change status
     if (isAssignedEmployee && !task.allowEmployeeStatusChange) {
       return res.status(403).json({ 
         message: "You don't have permission to change this task's status. Contact your admin or manager." 
       });
     }
 
-    // Only allow admins, managers, or assigned employees with permission
     if (!isAdmin && !isManager && !isAssignedEmployee) {
       return res.status(403).json({ 
         message: "You don't have permission to change this task's status" 

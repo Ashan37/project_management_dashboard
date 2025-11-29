@@ -34,14 +34,12 @@ export default function Tasks() {
   };
 
   const handleStatusChange = async (taskId, newStatus, event) => {
-    // Prevent event bubbling to avoid opening modal when changing status
     if (event) {
       event.stopPropagation();
     }
     
     try {
       await updateTaskStatus(taskId, newStatus);
-      // Update local state
       setTasks(prev => prev.map(task => 
         task._id === taskId ? { ...task, status: newStatus } : task
       ));
@@ -59,7 +57,6 @@ export default function Tasks() {
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedTask(null);
-    // Refresh tasks after closing modal
     fetchTasks();
   };
 
@@ -120,7 +117,6 @@ export default function Tasks() {
           <p className="text-sm text-gray-500">Total: {tasks.length} tasks loaded</p>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-5">
           <div
             onClick={() => setFilter('all')}
@@ -169,7 +165,6 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* Tasks List */}
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b">
             <h2 className="text-xl font-semibold">
@@ -197,8 +192,7 @@ export default function Tasks() {
                           <h3 className="text-lg font-semibold text-gray-900">
                             {task.title}
                           </h3>
-                          
-                          {/* Status Dropdown - Allow employees to change their own task status */}
+
                           {(role === 'employee' && task.assignedTo?._id === user?._id) || role === 'admin' || role === 'manager' ? (
                             <select
                               value={task.status}
