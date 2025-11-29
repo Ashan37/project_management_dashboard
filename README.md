@@ -2,23 +2,6 @@ Project Management Dashboard
 
 A full-stack Project Management & Dashboard System designed for software companies to manage projects, tasks, team collaboration, and client interactions efficiently.
 
----
-
-Table of Contents
-
-* Features
-* Tech Stack
-* Project Structure
-* Installation
-* Environment Variables
-* Usage
-* API Documentation
-* Screenshots
-* Contributing
-* License
-
----
-
 Features
 
 Core Functionality
